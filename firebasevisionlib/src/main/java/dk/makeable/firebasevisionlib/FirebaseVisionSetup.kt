@@ -15,7 +15,7 @@ class FirebaseVisionSetup(private val activity: AppCompatActivity,
 
     private val cameraSource: CameraSource = CameraSource(activity, graphicOverlay)
 
-    private var started: Boolean = true
+    private var started: Boolean = false
 
     init {
         cameraSource.setMachineLearningFrameProcessor(recognitionProcessor)
