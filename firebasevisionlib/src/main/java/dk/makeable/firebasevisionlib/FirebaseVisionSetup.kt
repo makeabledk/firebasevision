@@ -10,12 +10,14 @@ import com.gun0912.tedpermission.TedPermission
 /**
  * This class uses a reference to an activity, and a reference to a CameraSourcePreview/GraphicOverlay to control and release the camera when needed based on the activities lifecycle.
  */
-class FirebaseVisionSetup(private val activity: FirebaseVisionActivity,
-                          private val graphicOverlay: GraphicOverlay,
-                          private val cameraSourcePreview: CameraSourcePreview,
-                          private val recognitionProcessor: RecognitionProcessor,
-                          private val rationaleString: String,
-                          private val deniedString: String): LifecycleObserver {
+class FirebaseVisionSetup(
+    private val activity: FirebaseVisionActivity,
+    private val graphicOverlay: GraphicOverlay,
+    private val cameraSourcePreview: CameraSourcePreview,
+    private val recognitionProcessor: RecognitionProcessor,
+    private val rationaleString: String,
+    private val deniedString: String
+) : LifecycleObserver {
 
     private val cameraSource: CameraSource = CameraSource(activity, graphicOverlay)
 
@@ -32,8 +34,8 @@ class FirebaseVisionSetup(private val activity: FirebaseVisionActivity,
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     private fun start() {
-        secureCameraPermission {
-            if (activity.lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED) && !started) {
+        if (activity.lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED) && !started) {
+            secureCameraPermission {
                 started = true
                 cameraSourcePreview.start(cameraSource, graphicOverlay)
             }
