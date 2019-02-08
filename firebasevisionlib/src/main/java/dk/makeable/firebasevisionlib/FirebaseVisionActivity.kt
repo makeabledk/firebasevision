@@ -7,49 +7,23 @@ abstract class FirebaseVisionActivity: AppCompatActivity() {
     private var firebaseVision: FirebaseVisionSetup? = null
 
     /**
-     * When this function is called, a call to getRecognitionProcessor will be called immediately after. Will set up the camera.
-     * Be sure to follow this up with a call to startCameraSource for the preview to begin updating.
+     * When this function is called, all setup will be done regarding the camera and permissions, and the camera preview will begin
+     * displaying what the camera sees. No further setup needed. The RecognitionProcessor instance will receive updates when it finds
+     * any results, and in there is where you should add graphics to the GraphicOverlay.
+     *
+     * When the user denies the camera permission, this activity will automatically finish.
      */
     fun setupVisionDetection(graphicOverlay: GraphicOverlay,
                              cameraSourcePreview: CameraSourcePreview,
-                             recognitionProcessor: RecognitionProcessor) {
+                             recognitionProcessor: RecognitionProcessor,
+                             cameraPermissionRationaleString: String,
+                             cameraPermissionDeniedString: String) {
 
         this.attachFirebaseVision(FirebaseVisionSetup(this, graphicOverlay, cameraSourcePreview, recognitionProcessor))
-//        createCameraSource(graphicOverlay, cameraSourcePreview)
     }
 
     private fun attachFirebaseVision(visionSetup: FirebaseVisionSetup) {
         this.firebaseVision = visionSetup
     }
-
-//    fun startCameraSource() {
-//        if (!this::cameraSourcePreview.isInitialized) {
-//            throw UninitializedPropertyAccessException("CameraSource is not initialized, be sure to call setupVisionDetection before starting/stopping the CameraSource.")
-//        }
-//        cameraSourcePreview.start(cameraSource, graphicOverlay)
-//    }
-//
-//    fun stopCameraSource() {
-//        if (!this::cameraSourcePreview.isInitialized) {
-//            throw UninitializedPropertyAccessException("CameraSource is not initialized, be sure to call setupVisionDetection before starting/stopping the CameraSource.")
-//        }
-//        cameraSourcePreview.stop()
-//    }
-//
-//    fun releaseCameraSource() {
-//        if (!this::cameraSourcePreview.isInitialized) {
-//            throw UninitializedPropertyAccessException("CameraSource is not initialized, be sure to call setupVisionDetection before starting/stopping the CameraSource.")
-//        }
-//        cameraSource.release()
-//    }
-//
-//    private fun createCameraSource(graphicOverlay: GraphicOverlay, cameraSourcePreview: CameraSourcePreview) {
-//        this.graphicOverlay = graphicOverlay
-//        this.cameraSourcePreview = cameraSourcePreview
-//        cameraSource = CameraSource(this, graphicOverlay)
-//
-//        // Set the processor
-//        cameraSource.setMachineLearningFrameProcessor(getRecognitionProcessor())
-//    }
 
 }
