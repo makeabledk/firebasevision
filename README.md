@@ -4,6 +4,7 @@ FirebaseVision - A framework making it easy to recognize text, images, faces, ba
 
   - Activate vision features in activities in one line of code.
   - Scan faces, text, barcodes, images and more.
+  - Automatically handles asking for permissions (works like magic).
 
 # Getting started
 
