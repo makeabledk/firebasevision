@@ -13,7 +13,7 @@ abstract class FirebaseVisionActivity: AppCompatActivity() {
      *
      * When the user denies the camera permission, this activity will automatically finish.
      */
-    fun setupVisionDetection(graphicOverlay: GraphicOverlay,
+    protected fun setupVisionDetection(graphicOverlay: GraphicOverlay,
                              cameraSourcePreview: CameraSourcePreview,
                              recognitionProcessor: RecognitionProcessor,
                              cameraPermissionRationaleString: String,
