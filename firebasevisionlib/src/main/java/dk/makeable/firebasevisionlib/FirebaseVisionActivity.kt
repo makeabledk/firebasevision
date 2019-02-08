@@ -19,7 +19,12 @@ abstract class FirebaseVisionActivity: AppCompatActivity() {
                              cameraPermissionRationaleString: String,
                              cameraPermissionDeniedString: String) {
 
-        this.attachFirebaseVision(FirebaseVisionSetup(this, graphicOverlay, cameraSourcePreview, recognitionProcessor))
+        this.attachFirebaseVision(FirebaseVisionSetup(this,
+            graphicOverlay,
+            cameraSourcePreview,
+            recognitionProcessor,
+            cameraPermissionRationaleString,
+            cameraPermissionDeniedString))
     }
 
     private fun attachFirebaseVision(visionSetup: FirebaseVisionSetup) {
