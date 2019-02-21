@@ -23,11 +23,11 @@ import android.graphics.SurfaceTexture
 import android.hardware.Camera
 import android.hardware.Camera.CameraInfo
 import android.util.Log
+import android.util.Size
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.WindowManager
 import androidx.annotation.RequiresPermission
-import com.google.android.gms.common.images.Size
 import java.io.IOException
 import java.lang.Thread.State
 import java.nio.ByteBuffer
@@ -61,7 +61,7 @@ class CameraSource(protected var activity: Activity, private val graphicOverlay:
 
     // These values may be requested by the caller.  Due to hardware limitations, we may need to
     // select close, but not exactly the same values for these.
-    private val requestedFps = 20.0f
+    private val requestedFps = 30.0f
     private val requestedPreviewWidth = 1280
     private val requestedPreviewHeight = 960
     private val requestedAutoFocus = true
