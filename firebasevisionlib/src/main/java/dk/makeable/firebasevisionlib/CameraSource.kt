@@ -62,8 +62,8 @@ class CameraSource(protected var activity: Activity, private val graphicOverlay:
     // These values may be requested by the caller.  Due to hardware limitations, we may need to
     // select close, but not exactly the same values for these.
     private val requestedFps = 30.0f
-    private val requestedPreviewWidth = 1280
-    private val requestedPreviewHeight = 960
+    private var requestedPreviewWidth = 1280
+    private var requestedPreviewHeight = 960
     private val requestedAutoFocus = true
 
     // These instances need to be held onto to avoid GC of their underlying resources.  Even though
@@ -406,6 +406,14 @@ class CameraSource(protected var activity: Activity, private val graphicOverlay:
         override fun onPreviewFrame(data: ByteArray, camera: Camera) {
             processingRunnable.setNextFrame(data, camera)
         }
+    }
+
+    /**
+     * Will set the requested size of the CameraSource preview. Make sure to call this BEFORE using this cameraSource in a CameraSourcePreview.
+     */
+    fun setRequestedCameraPreviewSize(requestedWidth: Int, requestedHeight: Int) {
+        this.requestedPreviewWidth = requestedWidth
+        this.requestedPreviewHeight = requestedHeight
     }
 
     fun setMachineLearningFrameProcessor(processor: RecognitionProcessor) {

@@ -1,6 +1,7 @@
 package dk.makeable.firebasevisionlib
 
 import android.Manifest
+import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
@@ -37,6 +38,8 @@ class FirebaseVisionSetup(
         if (activity.lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED) && !started) {
             secureCameraPermission {
                 started = true
+                Log.d("FIREBASEVISION", "Starting cameraSource with preview width: ${cameraSourcePreview.width}, height: ${cameraSourcePreview.height}")
+                cameraSource.setRequestedCameraPreviewSize(cameraSourcePreview.width, cameraSourcePreview.height)
                 cameraSourcePreview.start(cameraSource, graphicOverlay)
             }
         }
