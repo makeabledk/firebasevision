@@ -66,6 +66,9 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
 
         this.cameraSource = cameraSource
 
+        // As the cameraSource changed, request a layout pass that uses its preview size to measure this view
+        requestLayout()
+
         if (this.cameraSource != null) {
             startRequested = true
             startIfReady()
