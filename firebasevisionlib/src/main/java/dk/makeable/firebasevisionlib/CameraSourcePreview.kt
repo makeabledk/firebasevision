@@ -136,6 +136,7 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
         val height = View.resolveSize(suggestedMinimumHeight, heightMeasureSpec)
         setMeasuredDimension(width, height)
 
+        Log.d(TAG, "CameraSource: ${cameraSource}, PreviewSize: ${cameraSource?.previewSize}")
         cameraSource?.previewSize?.let { previewSize ->
             val ratio = if (previewSize.height >= previewSize.width) previewSize.height.toFloat() / previewSize.width.toFloat()
                 else previewSize.width.toFloat() / previewSize.height.toFloat()
