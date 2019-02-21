@@ -119,7 +119,7 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
             try {
                 startIfReady()
             } catch (e: IOException) {
-                Log.e(TAG, "Could not start camera source.", e)
+                Log.d(TAG, "Could not start camera source.", e)
             }
 
         }
@@ -147,13 +147,13 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
             if (camHeight < height) {
                 newHeightRatio = height.toFloat() / previewSize.height.toFloat()
                 newCamHeight = newHeightRatio * camHeight
-                Log.e(TAG, "$camHeight $height ${previewSize.height} $newHeightRatio $newCamHeight")
+                Log.d(TAG, "$camHeight $height ${previewSize.height} $newHeightRatio $newCamHeight")
                 setMeasuredDimension((width * newHeightRatio).toInt(), newCamHeight.toInt())
-                Log.e(TAG, "${previewSize.width} | ${previewSize.height} | ration - $ratio | H_ratio - $newHeightRatio | A_width - ${width * newHeightRatio} | A_height - $newCamHeight")
+                Log.d(TAG, "${previewSize.width} | ${previewSize.height} | ration - $ratio | H_ratio - $newHeightRatio | A_width - ${width * newHeightRatio} | A_height - $newCamHeight")
             } else {
                 newCamHeight = camHeight
                 setMeasuredDimension(width, newCamHeight.toInt())
-                Log.e(TAG, "${previewSize.width} | ${previewSize.height} | ratio - $ratio | A_width - $width | A_height - $newCamHeight")
+                Log.d(TAG, "${previewSize.width} | ${previewSize.height} | ratio - $ratio | A_width - $width | A_height - $newCamHeight")
             }
         }
     }
@@ -213,7 +213,7 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
         try {
             startIfReady()
         } catch (e: IOException) {
-            Log.e(TAG, "Could not start camera source.", e)
+            Log.d(TAG, "Could not start camera source.", e)
         }
 
     }
