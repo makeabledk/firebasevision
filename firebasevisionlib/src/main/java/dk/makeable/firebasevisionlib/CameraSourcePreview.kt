@@ -21,6 +21,7 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import android.view.View
 import android.view.ViewGroup
 
 import java.io.IOException
@@ -130,6 +131,33 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
         override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {}
     }
 
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val width = View.resolveSize(suggestedMinimumWidth, widthMeasureSpec)
+        val height = View.resolveSize(suggestedMinimumHeight, heightMeasureSpec)
+        setMeasuredDimension(width, height)
+
+        cameraSource?.previewSize?.let { previewSize ->
+            val ratio = if (previewSize.height >= previewSize.width) previewSize.height.toFloat() / previewSize.width.toFloat()
+                else previewSize.width.toFloat() / previewSize.height.toFloat()
+
+            val camHeight = (width * ratio).toInt().toFloat()
+            val newCamHeight: Float
+            val newHeightRatio: Float
+
+            if (camHeight < height) {
+                newHeightRatio = height.toFloat() / previewSize.height.toFloat()
+                newCamHeight = newHeightRatio * camHeight
+                Log.e(TAG, "$camHeight $height ${previewSize.height} $newHeightRatio $newCamHeight")
+                setMeasuredDimension((width * newHeightRatio).toInt(), newCamHeight.toInt())
+                Log.e(TAG, "${previewSize.width} | ${previewSize.height} | ration - $ratio | H_ratio - $newHeightRatio | A_width - ${width * newHeightRatio} | A_height - $newCamHeight")
+            } else {
+                newCamHeight = camHeight
+                setMeasuredDimension(width, newCamHeight.toInt())
+                Log.e(TAG, "${previewSize.width} | ${previewSize.height} | ratio - $ratio | A_width - $width | A_height - $newCamHeight")
+            }
+        }
+    }
+
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         var width = 320
         var height = 240
@@ -191,6 +219,6 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
     }
 
     companion object {
-        private val TAG = "MIDemoApp:Preview"
+        private val TAG = "FIREBASEVISION:PREVIEW"
     }
 }

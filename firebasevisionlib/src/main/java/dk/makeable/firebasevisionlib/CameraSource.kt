@@ -546,6 +546,7 @@ class CameraSource(protected var activity: Activity, private val graphicOverlay:
                         Log.d(TAG, "Process an image")
                         frameProcessor!!.process(
                             data,
+
                             FrameMetadata.Builder()
                                 .setWidth(previewSize!!.width)
                                 .setHeight(previewSize!!.height)
