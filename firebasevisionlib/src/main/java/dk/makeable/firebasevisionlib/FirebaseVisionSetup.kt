@@ -100,4 +100,11 @@ class FirebaseVisionSetup<T> (
         cameraSource.setMachineLearningFrameProcessor(processor)
     }
 
+    /**
+     * Toggles the flashlight if available
+     */
+    public fun toggleFlashlight(enabled: Boolean) {
+        cameraSource.toggleFlashlight(enabled)
+    }
+
 }

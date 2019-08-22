@@ -426,6 +426,12 @@ class CameraSource(protected var context: Context, private val graphicOverlay: G
         }
     }
 
+    fun toggleFlashlight(enabled: Boolean) {
+        synchronized(processorLock) {
+            camera?.parameters?.flashMode = if (enabled) Camera.Parameters.FLASH_MODE_ON else Camera.Parameters.FLASH_MODE_OFF
+        }
+    }
+
     /**
      * This runnable controls access to the underlying receiver, calling it to process frames when
      * available from the camera. This is designed to run detection on frames as fast as possible
