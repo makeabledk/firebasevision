@@ -428,7 +428,7 @@ class CameraSource(protected var context: Context, private val graphicOverlay: G
 
     fun toggleFlashlight(enabled: Boolean) {
         synchronized(processorLock) {
-            camera?.parameters?.flashMode = if (enabled) Camera.Parameters.FLASH_MODE_ON else Camera.Parameters.FLASH_MODE_OFF
+            camera?.parameters = camera?.parameters?.apply { flashMode = if (enabled) Camera.Parameters.FLASH_MODE_ON else Camera.Parameters.FLASH_MODE_OFF }
         }
     }
 
