@@ -13,13 +13,11 @@ abstract class RecognitionProcessorListener<in ResultType> {
     abstract fun didRecognizeResult(result: ResultType)
 }
 
-abstract class BaseRecognitionProcessor<DetectionType, ResultType, DetectorType>: RecognitionProcessor {
+abstract class BaseRecognitionProcessor<DetectionType, ResultType, DetectorType>(private var listener: RecognitionProcessorListener<ResultType>? = null): RecognitionProcessor {
 
     companion object {
         private val TAG = "TextRecProc"
     }
-
-    private var listener: RecognitionProcessorListener<ResultType>? = null
 
     abstract val detector: DetectorType
 
