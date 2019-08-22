@@ -29,6 +29,7 @@ class FirebaseVisionSetup<T> (
     private val cameraSource: CameraSource = CameraSource(context, graphicOverlay)
 
     private var started: Boolean = false
+    private var isStarting: Boolean = false
 
     init {
         cameraSource.setMachineLearningFrameProcessor(recognitionProcessor)
@@ -44,12 +45,14 @@ class FirebaseVisionSetup<T> (
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     private fun start() {
-        if (owner.lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED) && !started) {
+        if (owner.lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED) && !started && !isStarting) {
+            isStarting = true
             secureCameraPermission {
                 started = true
                 Log.d("FIREBASEVISION", "Starting cameraSource with preview width: ${cameraSourcePreview.width}, height: ${cameraSourcePreview.height}")
                 cameraSource.setRequestedCameraPreviewSize(cameraSourcePreview.width, cameraSourcePreview.height)
                 cameraSourcePreview.start(cameraSource, graphicOverlay)
+                isStarting = false
             }
         }
     }
