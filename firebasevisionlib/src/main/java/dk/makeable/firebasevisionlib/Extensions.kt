@@ -10,7 +10,7 @@ fun FragmentActivity.setupVisionDetection(
     recognitionProcessor: RecognitionProcessor,
     cameraPermissionRationaleString: String,
     cameraPermissionDeniedString: String
-) {
+): FirebaseVisionSetup<*> {
 
     val setup = FirebaseVisionSetup(
         this,
@@ -24,6 +24,7 @@ fun FragmentActivity.setupVisionDetection(
 
     VisionSetupManager.instance.registerVisionSetup(setup) // The setup itself will make sure to unregister when needed.
 
+    return setup
 }
 
 fun Fragment.setupVisionDetection(
@@ -32,7 +33,7 @@ fun Fragment.setupVisionDetection(
     recognitionProcessor: RecognitionProcessor,
     cameraPermissionRationaleString: String,
     cameraPermissionDeniedString: String
-) {
+): FirebaseVisionSetup<*> {
 
     val setup = FirebaseVisionSetup(
         this, requireContext(),
@@ -45,6 +46,7 @@ fun Fragment.setupVisionDetection(
 
     VisionSetupManager.instance.registerVisionSetup(setup) // The setup itself will make sure to unregister when needed.
 
+    return setup
 }
 
 
