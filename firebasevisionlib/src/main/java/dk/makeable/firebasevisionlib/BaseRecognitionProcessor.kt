@@ -13,19 +13,17 @@ abstract class RecognitionProcessorListener<in ResultType> {
     abstract fun didRecognizeResult(result: ResultType, processor: RecognitionProcessor)
 }
 
-abstract class BaseRecognitionProcessor<DetectionType, ResultType, DetectorType>(private var listener: RecognitionProcessorListener<ResultType>? = null): RecognitionProcessor {
+abstract class BaseRecognitionProcessor<DetectionType: Any, ResultType: Any, DetectorType: Any>(private var listener: RecognitionProcessorListener<ResultType>? = null): RecognitionProcessor {
 
     companion object {
         private val TAG = "TextRecProc"
     }
 
-    abstract val detector: DetectorType
+    private var detector: DetectorType = getDetector()
 
     // Whether we should ignore process(). This is usually caused by feeding input data faster than
     // the model can handle.
     private val shouldThrottle = AtomicBoolean(false)
-
-
 
     //region ----- Exposed Methods -----
 
@@ -77,7 +75,7 @@ abstract class BaseRecognitionProcessor<DetectionType, ResultType, DetectorType>
         graphicOverlay: GraphicOverlay
     ) {
 
-        detectResults(image)
+        detectResults(image, detector)
             .addOnSuccessListener { result ->
                 shouldThrottle.set(false)
                 this.onSuccess(result, metadata, graphicOverlay)
@@ -101,7 +99,7 @@ abstract class BaseRecognitionProcessor<DetectionType, ResultType, DetectorType>
     /**
      * A call to this function should supply the detector with the passed image, letting the detector return a task of its results.
      */
-    abstract fun detectResults(image: FirebaseVisionImage): Task<DetectionType>
+    abstract fun detectResults(image: FirebaseVisionImage, detector: DetectorType): Task<DetectionType>
 
     /**
      * Called after results have been found, and a graphical overlay should be drawn. This is where you would add GraphicOverlay components to the UI, could be a TextGraphic or a BoundingBoxGraphic for example, or any other custom overlay class.
@@ -117,6 +115,11 @@ abstract class BaseRecognitionProcessor<DetectionType, ResultType, DetectorType>
      * Called whenever an error happens in this RecognitionProcessor.
      */
     abstract fun onFailure(e: Exception)
+
+    /**
+     * Returns the detector that will be used in this Processor to find results.
+     */
+    abstract fun getDetector(): DetectorType
     //endregion
 
 }
