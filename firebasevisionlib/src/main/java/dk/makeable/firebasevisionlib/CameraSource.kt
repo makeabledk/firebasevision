@@ -39,7 +39,7 @@ import java.util.*
  * sending those frames to child classes' detectors / classifiers as fast as it is able to process.
  */
 @SuppressLint("MissingPermission")
-class CameraSource(protected var activity: Activity, private val graphicOverlay: GraphicOverlay) {
+class CameraSource(protected var context: Context, private val graphicOverlay: GraphicOverlay) {
 
     private var camera: Camera? = null
 
@@ -340,7 +340,7 @@ class CameraSource(protected var activity: Activity, private val graphicOverlay:
      * @param cameraId the camera id to set rotation based on
      */
     private fun setRotation(camera: Camera, parameters: Camera.Parameters, cameraId: Int) {
-        val windowManager = activity.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         var degrees = 0
         val rotation = windowManager.defaultDisplay.rotation
         when (rotation) {

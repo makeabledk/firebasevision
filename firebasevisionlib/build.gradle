@@ -36,7 +36,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     // Firebase vision
-    implementation 'com.google.firebase:firebase-ml-vision:19.0.2'
+    api 'com.google.firebase:firebase-ml-vision:23.0.0'
 
     // For checking permissions
     implementation 'gun0912.ted:tedpermission:2.2.2'
