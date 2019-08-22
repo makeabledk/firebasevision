@@ -94,11 +94,10 @@ class FirebaseVisionSetup<T> (
     }
 
     /**
-     * Stops the setup, and tear it down. Be sure to call this function if your are changing visionSetup in your owner on the fly based on button clicks etc.
+     * Will reload the camera with the given recognition processor, now recognizing the things for that processor.
      */
-    public fun destroy() {
-        stop()
-        release()
+    public fun setRecognitionProcessor(processor: RecognitionProcessor) {
+        cameraSource.setMachineLearningFrameProcessor(processor)
     }
 
 }
