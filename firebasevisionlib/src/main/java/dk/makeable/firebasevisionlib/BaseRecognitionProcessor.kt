@@ -10,7 +10,7 @@ import java.nio.ByteBuffer
 import java.util.concurrent.atomic.AtomicBoolean
 
 abstract class RecognitionProcessorListener<in ResultType> {
-    abstract fun didRecognizeResult(result: ResultType)
+    abstract fun didRecognizeResult(result: ResultType, processor: RecognitionProcessor)
 }
 
 abstract class BaseRecognitionProcessor<DetectionType, ResultType, DetectorType>(private var listener: RecognitionProcessorListener<ResultType>? = null): RecognitionProcessor {
@@ -64,8 +64,7 @@ abstract class BaseRecognitionProcessor<DetectionType, ResultType, DetectorType>
     private fun onSuccess(result: DetectionType, frameMetadata: FrameMetadata, graphicOverlay: GraphicOverlay) {
         // Notify listener of results, if any
         getResult(result)?.let { result ->
-            listener?.didRecognizeResult(result)
-
+            listener?.didRecognizeResult(result, this)
         }
 
         // Call the drawGraphicOverLayWithResults if there were any results
