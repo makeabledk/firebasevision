@@ -25,6 +25,8 @@ abstract class BaseRecognitionProcessor<DetectionType: Any, ResultType: Any, Det
     // the model can handle.
     private val shouldThrottle = AtomicBoolean(false)
 
+    private var didStop: Boolean = false
+
     //region ----- Exposed Methods -----
 
     fun setListener(l: RecognitionProcessorListener<ResultType>) {
@@ -33,8 +35,8 @@ abstract class BaseRecognitionProcessor<DetectionType: Any, ResultType: Any, Det
 
     override fun stop() {
         try {
-            shouldThrottle.set(true) // Should prevent any further calls to the listener to not happen after this point in time.
             stopDetector(detector)
+            didStop = true
         } catch (e: IOException) {
             Log.e(TAG, "Exception thrown while trying to close Text Detector: $e")
         }
@@ -43,10 +45,12 @@ abstract class BaseRecognitionProcessor<DetectionType: Any, ResultType: Any, Det
 
     @Throws(FirebaseMLException::class)
     override fun process(data: ByteBuffer, frameMetadata: FrameMetadata, graphicOverlay: GraphicOverlay) {
-
         if (shouldThrottle.get()) {
             return
         }
+
+        Log.d(TAG, "process called")
+
         val metadata = FirebaseVisionImageMetadata.Builder()
             .setFormat(FirebaseVisionImageMetadata.IMAGE_FORMAT_NV21)
             .setWidth(frameMetadata.width)
@@ -79,11 +83,13 @@ abstract class BaseRecognitionProcessor<DetectionType: Any, ResultType: Any, Det
         detectResults(image, detector)
             .addOnSuccessListener { result ->
                 shouldThrottle.set(false)
-                this.onSuccess(result, metadata, graphicOverlay)
+                if (!didStop)
+                    this.onSuccess(result, metadata, graphicOverlay)
             }
             .addOnFailureListener { e ->
                 shouldThrottle.set(false)
-                this.onFailure(e)
+                if (!didStop)
+                    this.onFailure(e)
             }
         // Begin throttling until this frame of input has been processed, either in onSuccess or
         // onFailure.
