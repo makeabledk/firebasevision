@@ -33,6 +33,7 @@ abstract class BaseRecognitionProcessor<DetectionType: Any, ResultType: Any, Det
 
     override fun stop() {
         try {
+            shouldThrottle.set(true) // Should prevent any further calls to the listener to not happen after this point in time.
             stopDetector(detector)
         } catch (e: IOException) {
             Log.e(TAG, "Exception thrown while trying to close Text Detector: $e")
