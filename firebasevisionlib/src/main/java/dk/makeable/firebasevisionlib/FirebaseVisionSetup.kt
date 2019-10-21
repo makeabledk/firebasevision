@@ -3,6 +3,7 @@ package dk.makeable.firebasevisionlib
 import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.hardware.Camera
 import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -105,6 +106,13 @@ class FirebaseVisionSetup<T> (
      */
     public fun toggleFlashlight(enabled: Boolean) {
         cameraSource.toggleFlashlight(enabled)
+    }
+
+    /**
+     * Sets the focusMode on the Camera, IF AND ONLY IF it is supported by the camera.
+     */
+    public fun setFocusMode(focusMode: String) {
+        cameraSource.setFocusMode(Camera.Parameters.FOCUS_MODE_MACRO)
     }
 
 }

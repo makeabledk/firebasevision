@@ -433,6 +433,15 @@ class CameraSource(protected var context: Context, private val graphicOverlay: G
     }
 
     /**
+     * Sets the focusMode of this camera IF AND ONLY IF supported, otherwise does not set anything.
+     */
+    fun setFocusMode(newFocusMode: String) {
+        synchronized(processorLock) {
+            camera?.parameters = camera?.parameters?.apply { focusMode = newFocusMode }
+        }
+    }
+
+    /**
      * This runnable controls access to the underlying receiver, calling it to process frames when
      * available from the camera. This is designed to run detection on frames as fast as possible
      * (i.e., without unnecessary context switching or waiting on the next frame).
