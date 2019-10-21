@@ -21,6 +21,7 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.*
 import java.io.IOException
+import kotlin.math.roundToInt
 
 
 /** Preview the camera image in the screen.  */
@@ -248,7 +249,7 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
     }
 
     /**
-     * Calling this function will register a function which will be called when the zoom level changes.
+     * Calling this function will register a function which will be called when the zoom level changes. Returns the zoom level as an integer from 0% (no zoom) to 100% (max zoom)
      */
     public fun setZoomListener(zoomListener: (zoom: Int) -> Unit) {
         this.zoomListener = zoomListener
@@ -277,7 +278,8 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
         mDist = newDist
         cameraSource?.setZoomLevel(zoom)
         Log.d(TAG, "New zoom level: $zoom")
-        zoomListener?.invoke(zoom)
+        val zoomPercentage = (zoom.toDouble()/maxZoom.toDouble()) * 100 // Ex. 25/50 = 0.5
+        zoomListener?.invoke(zoomPercentage.roundToInt())
     }
 
 //    fun handleFocus(event: MotionEvent) {
