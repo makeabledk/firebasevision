@@ -247,8 +247,18 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
         return true
     }
 
-    private fun setZoomListener(zoomListener: (zoom: Int) -> Unit) {
+    /**
+     * Calling this function will register a function which will be called when the zoom level changes.
+     */
+    public fun setZoomListener(zoomListener: (zoom: Int) -> Unit) {
         this.zoomListener = zoomListener
+    }
+
+    /**
+     * Calling this function will set the zoom level of the camera preview.
+     */
+    public fun setZoomLevel(zoomLevel: Int) {
+        cameraSource?.setZoomLevel(zoomLevel)
     }
 
     private fun handleZoom(event: MotionEvent) {
