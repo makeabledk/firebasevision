@@ -19,12 +19,9 @@ import android.content.Context
 import android.content.res.Configuration
 import android.util.AttributeSet
 import android.util.Log
-import android.view.SurfaceHolder
-import android.view.SurfaceView
-import android.view.View
-import android.view.ViewGroup
-
+import android.view.*
 import java.io.IOException
+
 
 /** Preview the camera image in the screen.  */
 class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(context, attrs) {
@@ -34,6 +31,9 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
     private var cameraSource: CameraSource? = null
 
     private var overlay: GraphicOverlay? = null
+
+    // For handling pinch zoom
+    private var mDist = 0f
 
     private val isPortraitMode: Boolean
         get() {
@@ -220,6 +220,71 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
             Log.d(TAG, "Could not start camera source.", e)
         }
 
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        // Get the pointer ID
+//        val params = mCamera.getParameters()
+        val action = event.action
+
+
+        if (event.pointerCount > 1) { // Multi touch
+            // handle multi-touch events
+            if (action == MotionEvent.ACTION_POINTER_DOWN) {
+                mDist = getFingerSpacing(event)
+            } else if (action == MotionEvent.ACTION_MOVE && cameraSource?.isZoomSupported() == true) {
+                handleZoom(event)
+            }
+        } /*else {
+            // handle single touch events
+            if (action == MotionEvent.ACTION_UP) {
+                handleFocus(event)
+            }
+        }*/
+        return true
+    }
+
+    private fun handleZoom(event: MotionEvent) {
+        val maxZoom = cameraSource?.maxZoom()!!
+        var zoom = cameraSource?.zoom()!!
+        val newDist = getFingerSpacing(event)
+        if (newDist > mDist) {
+            //zoom in
+            if (zoom < maxZoom)
+                zoom++
+        } else if (newDist < mDist) {
+            //zoom out
+            if (zoom > 0)
+                zoom--
+        }
+        mDist = newDist
+        cameraSource?.setZoomLevel(zoom)
+    }
+
+//    fun handleFocus(event: MotionEvent) {
+//        val pointerId = event.getPointerId(0)
+//        val pointerIndex = event.findPointerIndex(pointerId)
+//        // Get the pointer's current position
+//        val x = event.getX(pointerIndex)
+//        val y = event.getY(pointerIndex)
+//
+//        val supportedFocusModes = params.getSupportedFocusModes()
+//        if (supportedFocusModes != null && supportedFocusModes!!.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+//            mCamera.autoFocus(object : Camera.AutoFocusCallback() {
+//                fun onAutoFocus(b: Boolean, camera: Camera) {
+//                    // currently set to auto-focus on single touch
+//                }
+//            })
+//        }
+//    }
+
+    /** Determine the space between the first two fingers  */
+    private fun getFingerSpacing(event: MotionEvent): Float {
+        // ...
+        val x = event.getX(0) - event.getX(1)
+        val y = event.getY(0) - event.getY(1)
+        return Math.sqrt((x * x + y * y).toDouble()).toFloat()
     }
 
     companion object {

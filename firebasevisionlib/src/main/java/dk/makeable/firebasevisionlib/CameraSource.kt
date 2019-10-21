@@ -441,6 +441,26 @@ class CameraSource(protected var context: Context, private val graphicOverlay: G
         }
     }
 
+    fun maxZoom(): Int = camera?.parameters?.maxZoom ?: 0
+
+    fun zoom(): Int = camera?.parameters?.zoom ?: 0
+
+    fun isZoomSupported(): Boolean = camera?.parameters?.isZoomSupported ?: false
+
+    /**
+     * Sets the zoom level on the camera. Use this function to enable pinch zooming for example.
+     */
+    fun setZoomLevel(zoom: Int) {
+        synchronized(processorLock) {
+            camera?.parameters?.let { params ->
+                if (params.isZoomSupported) {
+                    params.zoom = zoom
+                    camera?.parameters = params
+                }
+            }
+        }
+    }
+
     /**
      * This runnable controls access to the underlying receiver, calling it to process frames when
      * available from the camera. This is designed to run detection on frames as fast as possible
