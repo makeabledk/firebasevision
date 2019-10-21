@@ -32,6 +32,8 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
 
     private var overlay: GraphicOverlay? = null
 
+    private var zoomListener: ((zoom: Int) -> Unit)? = null
+
     // For handling pinch zoom
     private var mDist = 0f
 
@@ -245,6 +247,10 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
         return true
     }
 
+    private fun setZoomListener(zoomListener: (zoom: Int) -> Unit) {
+        this.zoomListener = zoomListener
+    }
+
     private fun handleZoom(event: MotionEvent) {
         val maxZoom = cameraSource?.maxZoom()!!
         var zoom = cameraSource?.zoom()!!
@@ -260,6 +266,8 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
         }
         mDist = newDist
         cameraSource?.setZoomLevel(zoom)
+        Log.d(TAG, "New zoom level: $zoom")
+        zoomListener?.invoke(zoom)
     }
 
 //    fun handleFocus(event: MotionEvent) {
