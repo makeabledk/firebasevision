@@ -123,10 +123,21 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
     }
 
     private inner class SurfaceCallback : SurfaceHolder.Callback {
+        private fun adjustZoomLevelIfNeeded() {
+            // Run a zoom adjustment, if any is pending
+            Log.d(TAG, "adjustZoomLevelIfNeeded called")
+            if (hasPendingZoomLevelAdjustment && pendingZoomLevel != null) {
+                setZoomLevel(pendingZoomLevel!!)
+                hasPendingZoomLevelAdjustment = false
+                pendingZoomLevel = null
+            }
+        }
+
         override fun surfaceCreated(surface: SurfaceHolder) {
             surfaceAvailable = true
             try {
                 startIfReady()
+                adjustZoomLevelIfNeeded()
             } catch (e: IOException) {
                 Log.d(TAG, "Could not start camera source.", e)
             }
@@ -139,13 +150,7 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
 
         override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
             Log.d(TAG, "Surface changed: <format: $format, width: $width, height: $height>")
-
-            // Run a zoom adjustment, if any is pending
-            if (hasPendingZoomLevelAdjustment && pendingZoomLevel != null) {
-                setZoomLevel(pendingZoomLevel!!)
-                hasPendingZoomLevelAdjustment = false
-                pendingZoomLevel = null
-            }
+            adjustZoomLevelIfNeeded()
         }
     }
 
