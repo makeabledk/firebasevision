@@ -144,7 +144,9 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
             surfaceAvailable = false
         }
 
-        override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {}
+        override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+            Log.d(TAG, "Surface changed: <format: $format, width: $width, height: $height>")
+        }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
