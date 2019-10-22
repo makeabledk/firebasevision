@@ -35,6 +35,9 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
 
     private var zoomListener: ((zoom: Int) -> Unit)? = null
 
+    private var hasPendingZoomLevelAdjustment = false
+    private var pendingZoomLevel: Int? = null
+
     // For handling pinch zoom
     private var mDist = 0f
 
@@ -116,6 +119,13 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
                 overlay!!.clear()
             }
             startRequested = false
+        }
+
+        // Run a zoom adjustment, if any is pending
+        if (hasPendingZoomLevelAdjustment && pendingZoomLevel != null) {
+            setZoomLevel(pendingZoomLevel!!)
+            hasPendingZoomLevelAdjustment = false
+            pendingZoomLevel = null
         }
     }
 
@@ -259,7 +269,15 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
      * Calling this function will set the zoom level of the camera preview.
      */
     public fun setZoomLevel(zoomLevel: Int) {
+        if (cameraSource == null) { // If the cameraSource has not yet been attached, make sure to schedule a call to set the zoom when it has been attached.
+            scheduleZoomLevelForWhenAttachhed(zoomLevel)
+        }
         cameraSource?.setZoomLevel(zoomLevel)
+    }
+
+    private fun scheduleZoomLevelForWhenAttachhed(zoomLevel: Int) {
+        this.hasPendingZoomLevelAdjustment = true
+        this.pendingZoomLevel = zoomLevel
     }
 
     private fun handleZoom(event: MotionEvent) {
