@@ -38,6 +38,8 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
     private var hasPendingZoomLevelAdjustment = false
     private var pendingZoomLevel: Int? = null
 
+    private var readyListener: (() -> Unit)? = null
+
     // For handling pinch zoom
     private var mDist = 0f
 
@@ -117,31 +119,34 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
                     overlay!!.setCameraInfo(max, min, cameraSource!!.cameraFacing)
                 }
                 overlay!!.clear()
+
+                // Ready for params
+                readyListener?.invoke()
             }
             startRequested = false
 
-            adjustZoomLevelIfNeeded()
+//            adjustZoomLevelIfNeeded()
         }
     }
 
-    private fun adjustZoomLevelIfNeeded() {
-        // Run a zoom adjustment, if any is pending
-        Log.d(TAG, "adjustZoomLevelIfNeeded called")
-        if (hasPendingZoomLevelAdjustment && pendingZoomLevel != null) {
-            try {
-                setZoomLevel(pendingZoomLevel!!)
-                hasPendingZoomLevelAdjustment = false
-                pendingZoomLevel = null
-            } catch (e: Throwable) {e.printStackTrace()}
-        }
-    }
+//    private fun adjustZoomLevelIfNeeded() {
+//        // Run a zoom adjustment, if any is pending
+//        Log.d(TAG, "adjustZoomLevelIfNeeded called")
+//        if (hasPendingZoomLevelAdjustment && pendingZoomLevel != null) {
+//            try {
+//                setZoomLevel(pendingZoomLevel!!)
+//                hasPendingZoomLevelAdjustment = false
+//                pendingZoomLevel = null
+//            } catch (e: Throwable) {e.printStackTrace()}
+//        }
+//    }
 
     private inner class SurfaceCallback : SurfaceHolder.Callback {
         override fun surfaceCreated(surface: SurfaceHolder) {
             surfaceAvailable = true
             try {
                 startIfReady()
-                adjustZoomLevelIfNeeded()
+//                adjustZoomLevelIfNeeded()
             } catch (e: IOException) {
                 Log.d(TAG, "Could not start camera source.", e)
             }
@@ -154,7 +159,7 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
 
         override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
             Log.d(TAG, "Surface changed: <format: $format, width: $width, height: $height>")
-            adjustZoomLevelIfNeeded()
+//            adjustZoomLevelIfNeeded()
         }
     }
 
@@ -281,17 +286,21 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
      */
     @Throws(RuntimeException::class)
     public fun setZoomLevel(zoomLevel: Int) {
-        if (cameraSource == null) { // If the cameraSource has not yet been attached, make sure to schedule a call to set the zoom when it has been attached.
-            scheduleZoomLevelForWhenAttachhed(zoomLevel)
-            throw RuntimeException() // Makes sure that either the cameraSource was not null, and therefore maybe throwed something, or throws when scheduling.
-        }
+//        if (cameraSource == null) { // If the cameraSource has not yet been attached, make sure to schedule a call to set the zoom when it has been attached.
+//            scheduleZoomLevelForWhenAttachhed(zoomLevel)
+//            throw RuntimeException() // Makes sure that either the cameraSource was not null, and therefore maybe throwed something, or throws when scheduling.
+//        }
         cameraSource?.setZoomLevel(zoomLevel)
     }
 
-    private fun scheduleZoomLevelForWhenAttachhed(zoomLevel: Int) {
-        this.hasPendingZoomLevelAdjustment = true
-        this.pendingZoomLevel = zoomLevel
+    public fun setOnReadyListener(readyListener: () -> Unit) {
+        this.readyListener = readyListener
     }
+
+//    private fun scheduleZoomLevelForWhenAttachhed(zoomLevel: Int) {
+//        this.hasPendingZoomLevelAdjustment = true
+//        this.pendingZoomLevel = zoomLevel
+//    }
 
     private fun handleZoom(event: MotionEvent) {
         val maxZoom = cameraSource?.maxZoom()!!
