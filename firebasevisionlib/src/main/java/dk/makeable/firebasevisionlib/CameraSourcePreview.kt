@@ -120,13 +120,6 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
             }
             startRequested = false
         }
-
-        // Run a zoom adjustment, if any is pending
-        if (hasPendingZoomLevelAdjustment && pendingZoomLevel != null) {
-            setZoomLevel(pendingZoomLevel!!)
-            hasPendingZoomLevelAdjustment = false
-            pendingZoomLevel = null
-        }
     }
 
     private inner class SurfaceCallback : SurfaceHolder.Callback {
@@ -134,6 +127,13 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
             surfaceAvailable = true
             try {
                 startIfReady()
+
+                // Run a zoom adjustment, if any is pending
+                if (hasPendingZoomLevelAdjustment && pendingZoomLevel != null) {
+                    setZoomLevel(pendingZoomLevel!!)
+                    hasPendingZoomLevelAdjustment = false
+                    pendingZoomLevel = null
+                }
             } catch (e: IOException) {
                 Log.d(TAG, "Could not start camera source.", e)
             }
