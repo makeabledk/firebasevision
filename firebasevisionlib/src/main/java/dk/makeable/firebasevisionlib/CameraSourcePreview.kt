@@ -119,20 +119,24 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
                 overlay!!.clear()
             }
             startRequested = false
+
+            adjustZoomLevelIfNeeded()
+        }
+    }
+
+    private fun adjustZoomLevelIfNeeded() {
+        // Run a zoom adjustment, if any is pending
+        Log.d(TAG, "adjustZoomLevelIfNeeded called")
+        if (hasPendingZoomLevelAdjustment && pendingZoomLevel != null) {
+            try {
+                setZoomLevel(pendingZoomLevel!!)
+                hasPendingZoomLevelAdjustment = false
+                pendingZoomLevel = null
+            } catch (e: Throwable) {e.printStackTrace()}
         }
     }
 
     private inner class SurfaceCallback : SurfaceHolder.Callback {
-        private fun adjustZoomLevelIfNeeded() {
-            // Run a zoom adjustment, if any is pending
-            Log.d(TAG, "adjustZoomLevelIfNeeded called")
-            if (hasPendingZoomLevelAdjustment && pendingZoomLevel != null) {
-                setZoomLevel(pendingZoomLevel!!)
-                hasPendingZoomLevelAdjustment = false
-                pendingZoomLevel = null
-            }
-        }
-
         override fun surfaceCreated(surface: SurfaceHolder) {
             surfaceAvailable = true
             try {
@@ -275,6 +279,7 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
     /**
      * Calling this function will set the zoom level of the camera preview.
      */
+    @Throws(RuntimeException::class)
     public fun setZoomLevel(zoomLevel: Int) {
         if (cameraSource == null) { // If the cameraSource has not yet been attached, make sure to schedule a call to set the zoom when it has been attached.
             scheduleZoomLevelForWhenAttachhed(zoomLevel)
@@ -301,7 +306,9 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
                 zoom--
         }
         mDist = newDist
-        cameraSource?.setZoomLevel(zoom)
+        try {
+            cameraSource?.setZoomLevel(zoom)
+        } catch (e: Exception) {e.printStackTrace()}
         Log.d(TAG, "New zoom level: $zoom")
         val zoomPercentage = (zoom.toDouble()/maxZoom.toDouble()) * 100 // Ex. 25/50 = 0.5
         zoomListener?.invoke(zoomPercentage.roundToInt())

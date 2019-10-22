@@ -459,15 +459,11 @@ class CameraSource(protected var context: Context, private val graphicOverlay: G
      */
     fun setZoomLevel(zoom: Int) {
         synchronized(processorLock) {
-            try {
-                camera?.parameters = camera?.parameters?.apply {
-                    if (isZoomSupported) {
-                        this.zoom = zoom
-                        Log.d(TAG, "Updated the zoom level to: $zoom")
-                    }
+            camera?.parameters = camera?.parameters?.apply {
+                if (isZoomSupported) {
+                    this.zoom = zoom
+                    Log.d(TAG, "Updated the zoom level to: $zoom")
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
         }
     }
