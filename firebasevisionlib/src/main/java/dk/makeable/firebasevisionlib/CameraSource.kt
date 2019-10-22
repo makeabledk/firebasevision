@@ -437,9 +437,13 @@ class CameraSource(protected var context: Context, private val graphicOverlay: G
      */
     fun setFocusMode(newFocusMode: String) {
         synchronized(processorLock) {
-            camera?.parameters = camera?.parameters?.apply {
-                focusMode = newFocusMode
-                Log.d(TAG, "Updated the focusMode to: $newFocusMode")
+            try {
+                camera?.parameters = camera?.parameters?.apply {
+                    focusMode = newFocusMode
+                    Log.d(TAG, "Updated the focusMode to: $newFocusMode")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
@@ -455,11 +459,15 @@ class CameraSource(protected var context: Context, private val graphicOverlay: G
      */
     fun setZoomLevel(zoom: Int) {
         synchronized(processorLock) {
-            camera?.parameters = camera?.parameters?.apply {
-                if (isZoomSupported) {
-                    this.zoom = zoom
-                    Log.d(TAG, "Updated the zoom level to: $zoom")
+            try {
+                camera?.parameters = camera?.parameters?.apply {
+                    if (isZoomSupported) {
+                        this.zoom = zoom
+                        Log.d(TAG, "Updated the zoom level to: $zoom")
+                    }
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
