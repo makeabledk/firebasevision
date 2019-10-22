@@ -283,6 +283,7 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
     public fun setZoomLevel(zoomLevel: Int) {
         if (cameraSource == null) { // If the cameraSource has not yet been attached, make sure to schedule a call to set the zoom when it has been attached.
             scheduleZoomLevelForWhenAttachhed(zoomLevel)
+            throw RuntimeException() // Makes sure that either the cameraSource was not null, and therefore maybe throwed something, or throws when scheduling.
         }
         cameraSource?.setZoomLevel(zoomLevel)
     }
