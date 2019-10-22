@@ -119,13 +119,6 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
                 overlay!!.clear()
             }
             startRequested = false
-
-            // Run a zoom adjustment, if any is pending
-            if (hasPendingZoomLevelAdjustment && pendingZoomLevel != null) {
-                setZoomLevel(pendingZoomLevel!!)
-                hasPendingZoomLevelAdjustment = false
-                pendingZoomLevel = null
-            }
         }
     }
 
@@ -146,6 +139,13 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : ViewGroup(con
 
         override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
             Log.d(TAG, "Surface changed: <format: $format, width: $width, height: $height>")
+
+            // Run a zoom adjustment, if any is pending
+            if (hasPendingZoomLevelAdjustment && pendingZoomLevel != null) {
+                setZoomLevel(pendingZoomLevel!!)
+                hasPendingZoomLevelAdjustment = false
+                pendingZoomLevel = null
+            }
         }
     }
 
