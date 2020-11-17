@@ -494,7 +494,9 @@ class CameraSource(protected var context: Context, private val graphicOverlay: G
          */
         @SuppressLint("Assert")
         internal fun release() {
-            assert(processingThread?.state == State.TERMINATED)
+            runCatching {
+                assert(processingThread?.state == State.TERMINATED)
+            }
         }
 
         /** Marks the runnable as active/not active. Signals any blocked threads to continue.  */
