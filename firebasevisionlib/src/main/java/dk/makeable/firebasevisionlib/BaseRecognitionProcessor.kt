@@ -2,9 +2,8 @@ package dk.makeable.firebasevisionlib
 
 import android.util.Log
 import com.google.android.gms.tasks.Task
-import com.google.firebase.ml.common.FirebaseMLException
-import com.google.firebase.ml.vision.common.FirebaseVisionImage
-import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
+import com.google.mlkit.common.MlKitException
+import com.google.mlkit.vision.common.InputImage
 import java.io.IOException
 import java.nio.ByteBuffer
 import java.util.concurrent.atomic.AtomicBoolean
@@ -43,7 +42,7 @@ abstract class BaseRecognitionProcessor<DetectionType: Any, ResultType: Any, Det
     }
 
 
-    @Throws(FirebaseMLException::class)
+    @Throws(MlKitException::class)
     override fun process(data: ByteBuffer, frameMetadata: FrameMetadata, graphicOverlay: GraphicOverlay) {
         if (shouldThrottle.get()) {
             return
@@ -51,14 +50,15 @@ abstract class BaseRecognitionProcessor<DetectionType: Any, ResultType: Any, Det
 
         Log.d(TAG, "process called")
 
-        val metadata = FirebaseVisionImageMetadata.Builder()
-            .setFormat(FirebaseVisionImageMetadata.IMAGE_FORMAT_NV21)
-            .setWidth(frameMetadata.width)
-            .setHeight(frameMetadata.height)
-            .setRotation(frameMetadata.rotation)
-            .build()
+        val image = InputImage.fromByteBuffer(
+            data,
+            frameMetadata.width,
+            frameMetadata.height,
+            frameMetadata.rotation,
+            InputImage.IMAGE_FORMAT_NV21
+        )
 
-        detectInVisionImage(FirebaseVisionImage.fromByteBuffer(data, metadata), frameMetadata, graphicOverlay)
+        detectInVisionImage(image, frameMetadata, graphicOverlay)
     }
 
     //endregion
@@ -75,7 +75,7 @@ abstract class BaseRecognitionProcessor<DetectionType: Any, ResultType: Any, Det
     }
 
     private fun detectInVisionImage(
-        image: FirebaseVisionImage,
+        image: InputImage,
         metadata: FrameMetadata,
         graphicOverlay: GraphicOverlay
     ) {
@@ -106,7 +106,7 @@ abstract class BaseRecognitionProcessor<DetectionType: Any, ResultType: Any, Det
     /**
      * A call to this function should supply the detector with the passed image, letting the detector return a task of its results.
      */
-    abstract fun detectResults(image: FirebaseVisionImage, detector: DetectorType): Task<DetectionType>
+    abstract fun detectResults(image: InputImage, detector: DetectorType): Task<DetectionType>
 
     /**
      * Called after results have been found, and a graphical overlay should be drawn. This is where you would add GraphicOverlay components to the UI, could be a TextGraphic or a BoundingBoxGraphic for example, or any other custom overlay class.

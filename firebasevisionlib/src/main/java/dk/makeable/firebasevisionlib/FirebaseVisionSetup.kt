@@ -3,19 +3,21 @@ package dk.makeable.firebasevisionlib
 import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
 import android.hardware.Camera
 import android.util.Log
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.OnLifecycleEvent
-import com.google.android.gms.internal.phenotype.zzh.init
-import com.gun0912.tedpermission.PermissionListener
-import com.gun0912.tedpermission.TedPermission
+import androidx.activity.result.ActivityResultCaller
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 
 /**
  * This class uses a reference to an context, and a reference to a CameraSourcePreview/GraphicOverlay to control and release the camera when needed based on the activities lifecycle.
+ * Note: The Activity or Fragment using this class must call handlePermissionResult() in their onRequestPermissionsResult() method.
  */
 class FirebaseVisionSetup<T> (
     private val owner: T,
@@ -25,14 +27,34 @@ class FirebaseVisionSetup<T> (
     private val recognitionProcessor: RecognitionProcessor,
     private val rationaleString: String,
     private val deniedString: String
-): LifecycleObserver where T: LifecycleOwner {
+) : DefaultLifecycleObserver where T : LifecycleOwner {
 
     private val cameraSource: CameraSource = CameraSource(context, graphicOverlay)
 
     private var started: Boolean = false
     private var isStarting: Boolean = false
+    private var pendingPermissionCallback: (() -> Unit)? = null
+    private val permissionLauncher: ActivityResultLauncher<String>?
+
+    companion object {
+        private const val CAMERA_PERMISSION = Manifest.permission.CAMERA
+        private const val CAMERA_PERMISSION_REQUEST_CODE = 1
+    }
 
     init {
+        permissionLauncher = (owner as? ActivityResultCaller)?.registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { granted ->
+            if (granted) {
+                pendingPermissionCallback?.invoke()
+            } else {
+                // Permission denied – mimic old behaviour
+                (owner as? Activity)?.finish()
+                (owner as? Fragment)?.parentFragmentManager?.popBackStack()
+            }
+            pendingPermissionCallback = null
+        }
+
         cameraSource.setMachineLearningFrameProcessor(recognitionProcessor)
 
         // Register this object to the context lifecycle
@@ -44,9 +66,12 @@ class FirebaseVisionSetup<T> (
         start() // Start if not already.
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    override fun onResume(owner: LifecycleOwner) {
+        start()
+    }
+
     private fun start() {
-        if (owner.lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED) && !started && !isStarting) {
+        if (!started && !isStarting) {
             isStarting = true
             secureCameraPermission {
                 started = true
@@ -58,7 +83,10 @@ class FirebaseVisionSetup<T> (
         }
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+    override fun onPause(owner: LifecycleOwner) {
+        stop()
+    }
+
     private fun stop() {
         if (started) {
             started = false
@@ -66,7 +94,10 @@ class FirebaseVisionSetup<T> (
         }
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    override fun onDestroy(owner: LifecycleOwner) {
+        release()
+    }
+
     private fun release() {
         cameraSource.release()
 
@@ -75,43 +106,50 @@ class FirebaseVisionSetup<T> (
     }
 
     private fun secureCameraPermission(onPermissionGranted: () -> Unit) {
-        // Ask the user for permission to use the camera
-        TedPermission.with(context)
-            .setPermissionListener(object : PermissionListener {
-                override fun onPermissionGranted() {
-                    onPermissionGranted()
-                }
+        // Check if camera permission is already granted
+        if (ContextCompat.checkSelfPermission(
+                context,
+                CAMERA_PERMISSION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            onPermissionGranted()
+            return
+        }
 
-                override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
-                    (owner as? Activity)?.finish()
-                    (owner as? Fragment)?.fragmentManager?.popBackStack()
-//                    owner.finish() // Finish the visionActivity
-                }
-            })
-            .setRationaleMessage(rationaleString)
-            .setDeniedMessage(deniedString)
-            .setPermissions(Manifest.permission.CAMERA)
-            .check()
+        pendingPermissionCallback = onPermissionGranted
+        // Launch permission request via Activity Result API
+        if (permissionLauncher != null) {
+            permissionLauncher.launch(CAMERA_PERMISSION)
+        } else {
+            Log.e(
+                "FIREBASEVISION",
+                "Permission launcher is null. Owner must implement ActivityResultCaller."
+            )
+            // Fallback to legacy behaviour
+            (owner as? Activity)?.let { act ->
+                ActivityCompat.requestPermissions(act, arrayOf(CAMERA_PERMISSION), 0)
+            }
+        }
     }
 
     /**
      * Will reload the camera with the given recognition processor, now recognizing the things for that processor.
      */
-    public fun setRecognitionProcessor(processor: RecognitionProcessor) {
+    fun setRecognitionProcessor(processor: RecognitionProcessor) {
         cameraSource.setMachineLearningFrameProcessor(processor)
     }
 
     /**
      * Toggles the flashlight if available
      */
-    public fun toggleFlashlight(enabled: Boolean) {
+    fun toggleFlashlight(enabled: Boolean) {
         cameraSource.toggleFlashlight(enabled)
     }
 
     /**
      * Sets the focusMode on the Camera, IF AND ONLY IF it is supported by the camera.
      */
-    public fun setFocusMode(focusMode: String) {
+    fun setFocusMode(focusMode: String) {
         cameraSource.setFocusMode(Camera.Parameters.FOCUS_MODE_MACRO)
     }
 

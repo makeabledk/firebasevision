@@ -18,7 +18,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.util.AttributeSet
 import android.view.View
-import com.google.android.gms.vision.CameraSource
+import dk.makeable.firebasevisionlib.CameraSource
 import dk.makeable.firebasevisionlib.GraphicOverlay.Graphic
 import java.util.*
 

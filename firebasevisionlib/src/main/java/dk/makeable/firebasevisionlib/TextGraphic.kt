@@ -18,48 +18,41 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
-
-import com.google.firebase.ml.vision.text.FirebaseVisionText
+import com.google.mlkit.vision.text.Text
 
 /**
  * Graphic instance for rendering TextBlock position, size, and ID within an associated graphic
  * overlay view.
  */
-class TextGraphic(overlay: GraphicOverlay, private val text: FirebaseVisionText.Element?) :
-    GraphicOverlay.Graphic(overlay) {
+class TextGraphic(
+    overlay: GraphicOverlay,
+    private val element: Text.Element?
+) : GraphicOverlay.Graphic(overlay) {
 
-    companion object {
-
-        private val TEXT_COLOR = Color.WHITE
-        private val TEXT_SIZE = 54.0f
-        private val STROKE_WIDTH = 4.0f
+    private val rectPaint: Paint = Paint().apply {
+        color = MARKER_COLOR
+        style = Paint.Style.STROKE
+        strokeWidth = STROKE_WIDTH
     }
 
-    private val rectPaint: Paint
-    private val textPaint: Paint
+    private val textPaint: Paint = Paint().apply {
+        color = MARKER_COLOR
+        textSize = TEXT_SIZE
+    }
 
     init {
-
-        rectPaint = Paint()
-        rectPaint.color = TEXT_COLOR
-        rectPaint.style = Paint.Style.STROKE
-        rectPaint.strokeWidth = STROKE_WIDTH
-
-        textPaint = Paint()
-        textPaint.color = TEXT_COLOR
-        textPaint.textSize = TEXT_SIZE
         // Redraw the overlay, as this graphic has been added.
         postInvalidate()
     }
 
     /** Draws the text block annotations for position, size, and raw value on the supplied canvas.  */
     override fun draw(canvas: Canvas) {
-        if (text == null) {
-            throw IllegalStateException("Attempting to draw a null text.")
+        if (element == null) {
+            return
         }
 
         // Draws the bounding box around the TextBlock.
-        val rect = RectF(text.boundingBox)
+        val rect = RectF(element.boundingBox)
         rect.left = translateX(rect.left)
         rect.top = translateY(rect.top)
         rect.right = translateX(rect.right)
@@ -67,6 +60,12 @@ class TextGraphic(overlay: GraphicOverlay, private val text: FirebaseVisionText.
         canvas.drawRect(rect, rectPaint)
 
         // Renders the text at the bottom of the box.
-        //        canvas.drawText(text.getText(), rect.left, rect.bottom, textPaint);
+        canvas.drawText(element.text, rect.left, rect.bottom, textPaint)
+    }
+
+    companion object {
+        private val MARKER_COLOR = Color.GREEN
+        private val TEXT_SIZE = 54.0f
+        private val STROKE_WIDTH = 4.0f
     }
 }
