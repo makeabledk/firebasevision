@@ -16,8 +16,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        cameraPreview = findViewById<CameraSourcePreview>(R.id.camera_preview)
-        graphicOverlay = findViewById<GraphicOverlay>(R.id.graphic_overlay)
+        cameraPreview = findViewById(R.id.camera_preview)
+        graphicOverlay = findViewById(R.id.graphic_overlay)
 
         val processor = TextRecognitionProcessor()
         visionSetup = FirebaseVisionSetup(

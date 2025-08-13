@@ -32,7 +32,8 @@ fun Fragment.setupVisionDetection(
     cameraSourcePreview: CameraSourcePreview,
     recognitionProcessor: RecognitionProcessor,
     cameraPermissionRationaleString: String,
-    cameraPermissionDeniedString: String
+    cameraPermissionDeniedString: String,
+    delay: Long
 ): FirebaseVisionSetup<*> {
 
     val setup = FirebaseVisionSetup(
@@ -41,7 +42,8 @@ fun Fragment.setupVisionDetection(
         cameraSourcePreview,
         recognitionProcessor,
         cameraPermissionRationaleString,
-        cameraPermissionDeniedString
+        cameraPermissionDeniedString,
+        delay
     )
 
     VisionSetupManager.instance.registerVisionSetup(setup) // The setup itself will make sure to unregister when needed.
