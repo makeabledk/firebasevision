@@ -1,15 +1,12 @@
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 28
-
-
+    compileSdkVersion 36
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 28
+        targetSdkVersion 36
         versionCode 2
         versionName "1.0"
 
@@ -24,22 +21,30 @@ android {
         }
     }
 
+    compileOptions {
+        targetCompatibility = 17
+        sourceCompatibility = 17
+    }
+    kotlinOptions {
+        jvmTarget = "17"
+        freeCompilerArgs = ["-Xallow-result-return-type"]
+    }
+
+    namespace 'dk.makeable.firebasevisionlib'
+
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation 'androidx.appcompat:appcompat:1.1.0-alpha02'
-    testImplementation 'junit:junit:4.12'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+    testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     // Firebase vision
     api 'com.google.firebase:firebase-ml-vision:23.0.0'
-
-    // For checking permissions
-    implementation 'gun0912.ted:tedpermission:2.2.2'
 }
 repositories {
     mavenCentral()

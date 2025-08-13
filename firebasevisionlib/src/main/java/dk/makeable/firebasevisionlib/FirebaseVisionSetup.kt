@@ -3,16 +3,18 @@ package dk.makeable.firebasevisionlib
 import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
 import android.hardware.Camera
 import android.util.Log
+import androidx.activity.ComponentActivity
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
-import com.google.android.gms.internal.phenotype.zzh.init
-import com.gun0912.tedpermission.PermissionListener
-import com.gun0912.tedpermission.TedPermission
 
 /**
  * This class uses a reference to an context, and a reference to a CameraSourcePreview/GraphicOverlay to control and release the camera when needed based on the activities lifecycle.
@@ -31,6 +33,34 @@ class FirebaseVisionSetup<T> (
 
     private var started: Boolean = false
     private var isStarting: Boolean = false
+
+    private var pendingOnPermissionGranted: (() -> Unit)? = null
+
+    private val permissionLauncher: ActivityResultLauncher<String>? = when (owner) {
+        is Fragment -> owner.registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { granted ->
+            if (granted) {
+                pendingOnPermissionGranted?.invoke()
+            } else {
+                handlePermissionDenied()
+            }
+            pendingOnPermissionGranted = null
+        }
+
+        is ComponentActivity -> owner.registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { granted ->
+            if (granted) {
+                pendingOnPermissionGranted?.invoke()
+            } else {
+                handlePermissionDenied()
+            }
+            pendingOnPermissionGranted = null
+        }
+
+        else -> null
+    }
 
     init {
         cameraSource.setMachineLearningFrameProcessor(recognitionProcessor)
@@ -75,23 +105,33 @@ class FirebaseVisionSetup<T> (
     }
 
     private fun secureCameraPermission(onPermissionGranted: () -> Unit) {
-        // Ask the user for permission to use the camera
-        TedPermission.with(context)
-            .setPermissionListener(object : PermissionListener {
-                override fun onPermissionGranted() {
-                    onPermissionGranted()
-                }
+        val permissionGranted = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED
 
-                override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {
-                    (owner as? Activity)?.finish()
-                    (owner as? Fragment)?.fragmentManager?.popBackStack()
-//                    owner.finish() // Finish the visionActivity
-                }
-            })
-            .setRationaleMessage(rationaleString)
-            .setDeniedMessage(deniedString)
-            .setPermissions(Manifest.permission.CAMERA)
-            .check()
+        if (permissionGranted) {
+            onPermissionGranted()
+            return
+        }
+
+        // Request permission using Activity Result API when possible
+        pendingOnPermissionGranted = onPermissionGranted
+        if (permissionLauncher != null) {
+            permissionLauncher.launch(Manifest.permission.CAMERA)
+        } else {
+            // Cannot request permission without a Fragment or ComponentActivity owner
+            Log.w(
+                "FIREBASEVISION",
+                "Unable to request CAMERA permission: owner is not Fragment or ComponentActivity"
+            )
+            handlePermissionDenied()
+        }
+    }
+
+    private fun handlePermissionDenied() {
+        (owner as? Activity)?.finish()
+        (owner as? Fragment)?.fragmentManager?.popBackStack()
     }
 
     /**

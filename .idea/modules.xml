@@ -2,10 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/firebasevision.iml" filepath="$PROJECT_DIR$/firebasevision.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/firebasevision.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/firebasevision.app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/firebasevisionlib/firebasevision.firebasevisionlib.iml" filepath="$PROJECT_DIR$/.idea/modules/firebasevisionlib/firebasevision.firebasevisionlib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/firebasevision.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/firebasevision.app.unitTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/firebasevisionlib/firebasevision.firebasevisionlib.main.iml" filepath="$PROJECT_DIR$/.idea/modules/firebasevisionlib/firebasevision.firebasevisionlib.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/firebasevisionlib/firebasevision.firebasevisionlib.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/firebasevisionlib/firebasevision.firebasevisionlib.unitTest.iml" />
     </modules>
   </component>
 </project>
