@@ -5,6 +5,8 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.hardware.Camera
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
@@ -26,13 +28,16 @@ class FirebaseVisionSetup<T> (
     private val cameraSourcePreview: CameraSourcePreview,
     private val recognitionProcessor: RecognitionProcessor,
     private val rationaleString: String,
-    private val deniedString: String
+    private val deniedString: String,
+    private val startDelayMillis: Long = 0L
 ): LifecycleObserver where T: LifecycleOwner {
 
     private val cameraSource: CameraSource = CameraSource(context, graphicOverlay)
+    private val mainHandler: Handler = Handler(Looper.getMainLooper())
 
     private var started: Boolean = false
     private var isStarting: Boolean = false
+    private var scheduledStart: Runnable? = null
 
     private var pendingOnPermissionGranted: (() -> Unit)? = null
 
@@ -79,18 +84,45 @@ class FirebaseVisionSetup<T> (
         if (owner.lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED) && !started && !isStarting) {
             isStarting = true
             secureCameraPermission {
-                started = true
-                Log.d("FIREBASEVISION", "Starting cameraSource with preview width: ${cameraSourcePreview.width}, height: ${cameraSourcePreview.height}")
-                // Do NOT override requested camera preview size with view dimensions.
-                // Let CameraSource choose based on its high default (1280x960) to maintain quality.
-                cameraSourcePreview.start(cameraSource, graphicOverlay)
-                isStarting = false
+                val executeStart = Runnable {
+                    // Guard in case state changed while waiting
+                    if (started || !owner.lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)) {
+                        isStarting = false
+                        scheduledStart = null
+                        return@Runnable
+                    }
+                    started = true
+                    Log.d(
+                        "FIREBASEVISION",
+                        "Starting cameraSource with preview width: ${cameraSourcePreview.width}, height: ${cameraSourcePreview.height}"
+                    )
+                    // Do NOT override requested camera preview size with view dimensions.
+                    // Let CameraSource choose based on its high default (1280x960) to maintain quality.
+                    cameraSourcePreview.start(cameraSource, graphicOverlay)
+                    isStarting = false
+                    scheduledStart = null
+                }
+
+                if (startDelayMillis <= 0L) {
+                    executeStart.run()
+                } else {
+                    scheduledStart = executeStart
+                    mainHandler.postDelayed(executeStart, startDelayMillis)
+                }
             }
         }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     private fun stop() {
+        // Cancel any pending delayed start
+        scheduledStart?.let { pending ->
+            mainHandler.removeCallbacks(pending)
+            scheduledStart = null
+        }
+        if (isStarting) {
+            isStarting = false
+        }
         if (started) {
             started = false
             cameraSourcePreview.stop()
@@ -99,6 +131,11 @@ class FirebaseVisionSetup<T> (
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     private fun release() {
+        // Ensure no delayed start will fire after release
+        scheduledStart?.let { pending ->
+            mainHandler.removeCallbacks(pending)
+            scheduledStart = null
+        }
         cameraSource.release()
 
         // Unregister the setup
