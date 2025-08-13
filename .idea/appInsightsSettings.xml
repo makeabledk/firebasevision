@@ -22,10 +22,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="dk.makeable.firebasevision" />
+                  <option name="mobileSdkAppId" value="1:561360255588:android:3b7e960221567bd2fd3d71" />
+                  <option name="projectId" value="ma-app-tester" />
+                  <option name="projectNumber" value="561360255588" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

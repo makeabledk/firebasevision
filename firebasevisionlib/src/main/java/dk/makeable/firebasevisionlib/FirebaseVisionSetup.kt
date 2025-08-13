@@ -81,7 +81,8 @@ class FirebaseVisionSetup<T> (
             secureCameraPermission {
                 started = true
                 Log.d("FIREBASEVISION", "Starting cameraSource with preview width: ${cameraSourcePreview.width}, height: ${cameraSourcePreview.height}")
-                cameraSource.setRequestedCameraPreviewSize(cameraSourcePreview.width, cameraSourcePreview.height)
+                // Do NOT override requested camera preview size with view dimensions.
+                // Let CameraSource choose based on its high default (1280x960) to maintain quality.
                 cameraSourcePreview.start(cameraSource, graphicOverlay)
                 isStarting = false
             }
